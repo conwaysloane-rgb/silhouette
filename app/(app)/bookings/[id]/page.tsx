@@ -20,7 +20,7 @@ export default async function BookingDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ new?: string; returned?: string }>
+  searchParams: Promise<{ new?: string; returned?: string; reviewed?: string }>
 }) {
   const { id } = await params
   const sp = await searchParams
@@ -62,6 +62,17 @@ export default async function BookingDetailPage({
     (new Date(booking.return_date).getTime() - new Date(booking.pickup_date).getTime()) / (1000 * 60 * 60 * 24)
   )
 
+  // Check if user has already left a review for this booking
+  const { data: myReview } = await supabase
+    .from('reviews')
+    .select('id')
+    .eq('booking_id', id)
+    .eq('reviewer_id', user.id)
+    .maybeSingle()
+
+  const revieweeId = isSeller ? renter.id : listing.seller.id
+  const canReview = status === 'completed' && !myReview
+
   return (
     <div className="px-4 pt-6 pb-10">
       {/* Header */}
@@ -83,6 +94,11 @@ export default async function BookingDetailPage({
       {sp.returned === '1' && (
         <div className="mb-4 rounded-xl bg-green-50 border border-green-100 px-4 py-3 text-sm text-green-700 font-medium">
           Item marked as returned. Deposit has been released.
+        </div>
+      )}
+      {sp.reviewed === '1' && (
+        <div className="mb-4 rounded-xl bg-green-50 border border-green-100 px-4 py-3 text-sm text-green-700 font-medium">
+          Review submitted — thanks!
         </div>
       )}
 
@@ -241,6 +257,22 @@ export default async function BookingDetailPage({
               Cancel request
             </button>
           </form>
+        )}
+
+        {/* Completed: leave a review */}
+        {canReview && (
+          <Link
+            href={`/reviews/new?booking=${booking.id}&reviewee=${revieweeId}`}
+            className="flex items-center justify-center gap-2 w-full rounded-xl bg-neutral-900 py-3.5 text-sm font-semibold text-white hover:bg-neutral-800 transition"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+            Leave a review
+          </Link>
+        )}
+        {status === 'completed' && myReview && (
+          <p className="text-center text-sm text-neutral-400">You&apos;ve already reviewed this rental</p>
         )}
       </div>
     </div>
