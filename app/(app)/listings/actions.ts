@@ -15,6 +15,7 @@ export async function createListing(formData: FormData) {
   const pricePerDayRaw = formData.get('price_per_day') as string
   const depositRaw = formData.get('deposit_amount') as string
   const salePriceRaw = formData.get('sale_price') as string
+  const retailPriceRaw = formData.get('retail_price') as string
 
   const { data: listing, error } = await supabase
     .from('listings')
@@ -28,6 +29,7 @@ export async function createListing(formData: FormData) {
       price_per_day: pricePerDayRaw ? parseFloat(pricePerDayRaw) : null,
       deposit_amount: depositRaw ? parseFloat(depositRaw) : null,
       sale_price: salePriceRaw ? parseFloat(salePriceRaw) : null,
+      retail_price: retailPriceRaw ? parseFloat(retailPriceRaw) : null,
     })
     .select()
     .single()

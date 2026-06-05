@@ -46,6 +46,9 @@ export default function NewListingPage() {
             Photos <span className="text-crimson">*</span>
           </label>
           <PhotoUpload />
+          <p className="text-[10px] text-neutral-400 mt-2.5 leading-relaxed font-serif italic">
+            It is not required but highly encouraged to post photos from the original website for fitting and design purposes.
+          </p>
         </div>
 
         {/* Title */}
@@ -77,6 +80,26 @@ export default function NewListingPage() {
             placeholder="Brand, fit, any details renters should know..."
             className="w-full border-b border-neutral-300 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-300 outline-none focus:border-crimson transition-colors bg-transparent resize-none"
           />
+        </div>
+
+        {/* Retail price */}
+        <div>
+          <label htmlFor="retail_price" className="block text-[10px] font-medium text-neutral-500 uppercase tracking-widest mb-2">
+            Retail Price
+          </label>
+          <div className="relative">
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 text-sm text-neutral-400">$</span>
+            <input
+              id="retail_price"
+              name="retail_price"
+              type="number"
+              min={1}
+              step={1}
+              placeholder="120"
+              className="w-full border-b border-neutral-300 pl-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-300 outline-none focus:border-crimson transition-colors bg-transparent"
+            />
+          </div>
+          <p className="text-[10px] text-neutral-400 mt-1 uppercase tracking-wide">Original retail price of the item</p>
         </div>
 
         {/* Category */}
