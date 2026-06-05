@@ -46,7 +46,7 @@ export async function submitSupportTicket(formData: FormData) {
 
     await resend.emails.send({
       from: 'Silhouette Support <onboarding@resend.dev>',
-      to: 'sec124@duke.edu',
+      to: 'conwaysloane@gmail.com',
       subject: `[Support] ${REASON_LABELS[reason] ?? reason}`,
       html: `
         <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
