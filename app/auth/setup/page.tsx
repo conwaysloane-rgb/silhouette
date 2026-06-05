@@ -1,4 +1,5 @@
 import { updateProfile } from '../actions'
+import WelcomeModal from '@/components/WelcomeModal'
 
 const GRAD_YEARS = [2025, 2026, 2027, 2028, 2029]
 
@@ -11,6 +12,7 @@ export default async function ProfileSetupPage({
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
+      <WelcomeModal />
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-neutral-900">Set up your profile</h1>
