@@ -38,10 +38,10 @@ export default function BrowseFilters() {
           <button
             key={cat.value}
             onClick={() => setParam('category', activeCategory === cat.value ? '' : cat.value)}
-            className={`flex-shrink-0 text-xs font-medium px-3.5 py-1.5 rounded-full border transition ${
+            className={`flex-shrink-0 text-[10px] font-medium px-3.5 py-1.5 uppercase tracking-widest border transition-colors ${
               activeCategory === cat.value
-                ? 'bg-neutral-900 text-white border-neutral-900'
-                : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
+                ? 'bg-crimson text-white border-crimson'
+                : 'border-neutral-200 text-neutral-500 hover:border-neutral-900 hover:text-neutral-900'
             }`}
           >
             {cat.label}
@@ -55,10 +55,10 @@ export default function BrowseFilters() {
           <button
             key={size}
             onClick={() => setParam('size', activeSize === size ? '' : size)}
-            className={`flex-1 text-xs font-medium py-1.5 rounded-xl border transition ${
+            className={`flex-1 text-[10px] font-medium py-1.5 uppercase tracking-widest border transition-colors ${
               activeSize === size
-                ? 'bg-neutral-900 text-white border-neutral-900'
-                : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
+                ? 'bg-crimson text-white border-crimson'
+                : 'border-neutral-200 text-neutral-500 hover:border-neutral-900 hover:text-neutral-900'
             }`}
           >
             {size}

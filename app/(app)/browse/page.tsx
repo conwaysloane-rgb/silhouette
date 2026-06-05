@@ -29,8 +29,12 @@ export default async function BrowsePage({
 
   return (
     <div className="px-4 pt-10">
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-neutral-900 mb-4">Browse</h1>
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="font-serif text-4xl tracking-[0.2em] text-neutral-900 uppercase text-center mb-1">
+          Silhouette
+        </h1>
+        <div className="h-px w-8 bg-crimson mx-auto mb-5" />
         <Suspense>
           <BrowseFilters />
         </Suspense>
@@ -38,20 +42,22 @@ export default async function BrowsePage({
 
       {!listings?.length ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <div className="w-12 h-12 flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
             </svg>
           </div>
-          <p className="font-medium text-neutral-900 mb-1">No listings yet</p>
-          <p className="text-sm text-neutral-500">
+          <p className="font-serif italic text-lg text-neutral-400 mb-1">Nothing here yet</p>
+          <p className="text-xs text-neutral-400 uppercase tracking-widest">
             {params.category || params.size ? 'Try adjusting your filters' : 'Be the first to list something'}
           </p>
         </div>
       ) : (
         <>
-          <p className="text-xs text-neutral-400 mb-4">{listings.length} item{listings.length !== 1 ? 's' : ''}</p>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-6 pb-6">
+          <p className="text-[10px] text-neutral-400 uppercase tracking-widest mb-4">
+            {listings.length} {listings.length === 1 ? 'item' : 'items'}
+          </p>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-8 pb-6">
             {listings.map(listing => (
               <ListingCard key={listing.id} listing={listing as unknown as Parameters<typeof ListingCard>[0]['listing']} />
             ))}
