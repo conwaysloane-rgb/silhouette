@@ -9,26 +9,20 @@ export async function signUp(formData: FormData) {
   const password = formData.get('password') as string
   const fullName = formData.get('full_name') as string
 
-  const { error: signUpError } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name: fullName },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/auth/callback?next=/auth/setup`,
     },
   })
 
-  if (signUpError) {
-    redirect(`/auth/signup?error=${encodeURIComponent(signUpError.message)}`)
+  if (error) {
+    redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`)
   }
 
-  // Sign in immediately — no email verification required
-  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-
-  if (signInError) {
-    redirect(`/auth/login?message=Account created! Please sign in.`)
-  }
-
-  redirect('/auth/setup')
+  redirect('/auth/signup?message=Check your email to confirm your account')
 }
 
 export async function signIn(formData: FormData) {
