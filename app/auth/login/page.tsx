@@ -17,7 +17,7 @@ export default async function LoginPage({
         </h1>
         <div className="h-px w-12 bg-crimson mt-4 mb-3" />
         <p className="font-serif italic text-neutral-400 text-sm tracking-wide">
-          From her closet to yours
+          Cash In Your Closet
         </p>
       </div>
 
