@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { signIn } from '../actions'
+import LogoImage from '@/components/LogoImage'
 
 export default async function LoginPage({
   searchParams,
@@ -11,7 +12,8 @@ export default async function LoginPage({
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Wordmark */}
-      <div className="flex flex-col items-center pt-20 pb-10 px-8">
+      <div className="flex flex-col items-center pt-16 pb-10 px-8">
+        <LogoImage />
         <h1 className="font-serif text-5xl tracking-[0.25em] text-neutral-900 uppercase">
           Silhouette
         </h1>
