@@ -6,7 +6,9 @@ interface Props {
     title: string
     category: string
     size: string
-    price_per_day: number
+    price_per_day: number | null
+    sale_price?: number | null
+    listing_type?: string | null
     photos?: { photo_url: string; display_order: number }[]
     seller?: { full_name: string; profile_photo_url: string | null } | null
   }
@@ -27,7 +29,7 @@ export default function ListingCard({ listing }: Props) {
   return (
     <Link href={`/browse/${listing.id}`} className="group block">
       {/* Photo */}
-      <div className="aspect-[3/4] overflow-hidden bg-neutral-100 mb-2.5">
+      <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 mb-2.5">
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -42,6 +44,15 @@ export default function ListingCard({ listing }: Props) {
             </svg>
           </div>
         )}
+
+        {/* Sale badge */}
+        {['sale', 'both'].includes(listing.listing_type ?? 'rental') && (
+          <div className="absolute top-2 left-2">
+            <span className="text-[8px] font-medium uppercase tracking-widest bg-crimson text-white px-1.5 py-0.5">
+              For Sale
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Info */}
@@ -50,7 +61,14 @@ export default function ListingCard({ listing }: Props) {
       </p>
       <div className="flex items-center justify-between mt-1">
         <span className="text-[11px] text-neutral-400">{CATEGORY_LABELS[listing.category]} · {listing.size}</span>
-        <span className="text-xs font-semibold text-crimson">${listing.price_per_day}/day</span>
+        <div className="flex items-center gap-1.5">
+          {listing.sale_price && ['sale', 'both'].includes(listing.listing_type ?? 'rental') && (
+            <span className="text-xs font-semibold text-crimson">${listing.sale_price}</span>
+          )}
+          {listing.price_per_day && ['rental', 'both'].includes(listing.listing_type ?? 'rental') && (
+            <span className="text-xs font-semibold text-neutral-500">${listing.price_per_day}/day</span>
+          )}
+        </div>
       </div>
       {listing.seller && (
         <p className="text-[10px] text-neutral-400 mt-0.5 truncate">{listing.seller.full_name}</p>

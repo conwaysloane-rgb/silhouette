@@ -15,7 +15,7 @@ export default async function BrowsePage({
   let query = supabase
     .from('listings')
     .select(`
-      id, title, category, size, price_per_day,
+      id, title, category, size, price_per_day, sale_price, listing_type,
       photos:listing_photos(photo_url, display_order),
       seller:users!seller_id(full_name, profile_photo_url)
     `)

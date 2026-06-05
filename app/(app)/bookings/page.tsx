@@ -28,27 +28,40 @@ export default async function BookingsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const { data: renting } = await supabase
-    .from('bookings')
-    .select(`
-      id, pickup_date, return_date, total_rental_price, deposit_amount, status, created_at,
-      listing:listings(id, title, listing_photos(photo_url, display_order), users!seller_id(full_name))
-    `)
-    .eq('renter_id', user.id)
-    .order('created_at', { ascending: false })
+  const [
+    { data: renting },
+    { data: selling },
+    { data: bought },
+  ] = await Promise.all([
+    supabase
+      .from('bookings')
+      .select(`
+        id, pickup_date, return_date, total_rental_price, deposit_amount, status, created_at,
+        listing:listings(id, title, listing_photos(photo_url, display_order), users!seller_id(full_name))
+      `)
+      .eq('renter_id', user.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('bookings')
+      .select(`
+        id, pickup_date, return_date, total_rental_price, deposit_amount, status, created_at,
+        listing:listings(id, title, listing_photos(photo_url, display_order)),
+        renter:users!renter_id(full_name)
+      `)
+      .eq('listings.seller_id', user.id)
+      .not('listing', 'is', null)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('purchases')
+      .select(`
+        id, sale_price, platform_fee, status, created_at,
+        listing:listings(id, title, listing_photos(photo_url, display_order))
+      `)
+      .eq('buyer_id', user.id)
+      .order('created_at', { ascending: false }),
+  ])
 
-  const { data: selling } = await supabase
-    .from('bookings')
-    .select(`
-      id, pickup_date, return_date, total_rental_price, deposit_amount, status, created_at,
-      listing:listings(id, title, listing_photos(photo_url, display_order)),
-      renter:users!renter_id(full_name)
-    `)
-    .eq('listings.seller_id', user.id)
-    .not('listing', 'is', null)
-    .order('created_at', { ascending: false })
-
-  const hasAny = (renting?.length ?? 0) + (selling?.length ?? 0) > 0
+  const hasAny = (renting?.length ?? 0) + (selling?.length ?? 0) + (bought?.length ?? 0) > 0
 
   return (
     <div className="px-4 pt-10 pb-6">
@@ -113,7 +126,7 @@ export default async function BookingsPage() {
 
       {/* Selling section */}
       {(selling?.length ?? 0) > 0 && (
-        <section>
+        <section className="mb-8">
           <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-widest mb-3">Requests on my listings</p>
           <div className="space-y-2">
             {selling!.map(b => {
@@ -136,6 +149,46 @@ export default async function BookingsPage() {
                     </div>
                     <p className="text-[11px] text-neutral-400">from {renter?.full_name}</p>
                     <p className="text-[11px] text-neutral-400">{formatDate(b.pickup_date)} → {formatDate(b.return_date)}</p>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Purchases section */}
+      {(bought?.length ?? 0) > 0 && (
+        <section>
+          <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-widest mb-3">Purchases</p>
+          <div className="space-y-2">
+            {bought!.map(p => {
+              const listing = p.listing as unknown as { id: string; title: string; listing_photos: { photo_url: string; display_order: number }[] } | null
+              const cover = listing?.listing_photos?.sort((a, b) => a.display_order - b.display_order)[0]?.photo_url
+              const purchaseStatus = p.status as 'pending' | 'completed' | 'cancelled'
+              const purchaseStatusConfig = {
+                pending:   { label: 'Pending handoff', style: 'border-neutral-300 text-neutral-500' },
+                completed: { label: 'Completed',       style: 'border-neutral-200 text-neutral-400' },
+                cancelled: { label: 'Cancelled',       style: 'border-neutral-100 text-neutral-300' },
+              }
+              const pCfg = purchaseStatusConfig[purchaseStatus] ?? purchaseStatusConfig.pending
+              return (
+                <Link key={p.id} href={`/purchases/${p.id}`} className="flex gap-3 border border-neutral-100 p-3 hover:border-neutral-300 transition-colors">
+                  <div className="w-14 h-14 overflow-hidden bg-neutral-100 flex-shrink-0">
+                    {cover
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={cover} alt="" className="w-full h-full object-cover" />
+                      : <div className="w-full h-full bg-neutral-100" />
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <p className="text-xs font-medium text-neutral-900 truncate uppercase tracking-wide">{listing?.title}</p>
+                      <span className={`text-[9px] font-medium uppercase tracking-widest px-2 py-0.5 border ${pCfg.style} flex-shrink-0`}>
+                        {pCfg.label}
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-crimson mt-1">${(p.sale_price + p.platform_fee).toFixed(2)}</p>
                   </div>
                 </Link>
               )

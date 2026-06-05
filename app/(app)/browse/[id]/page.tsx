@@ -111,14 +111,24 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
 
         {/* Pricing */}
         <div className="flex gap-3">
-          <div className="flex-1 rounded-2xl bg-neutral-50 border border-neutral-100 px-4 py-3 text-center">
-            <p className="text-lg font-bold text-neutral-900">${listing.price_per_day}</p>
-            <p className="text-xs text-neutral-500">per day</p>
-          </div>
-          <div className="flex-1 rounded-2xl bg-neutral-50 border border-neutral-100 px-4 py-3 text-center">
-            <p className="text-lg font-bold text-neutral-900">${listing.deposit_amount}</p>
-            <p className="text-xs text-neutral-500">deposit hold</p>
-          </div>
+          {['rental', 'both'].includes(listing.listing_type ?? 'rental') && (
+            <div className="flex-1 rounded-2xl bg-neutral-50 border border-neutral-100 px-4 py-3 text-center">
+              <p className="text-lg font-bold text-neutral-900">${listing.price_per_day}</p>
+              <p className="text-xs text-neutral-500">per day</p>
+            </div>
+          )}
+          {['rental', 'both'].includes(listing.listing_type ?? 'rental') && (
+            <div className="flex-1 rounded-2xl bg-neutral-50 border border-neutral-100 px-4 py-3 text-center">
+              <p className="text-lg font-bold text-neutral-900">${listing.deposit_amount}</p>
+              <p className="text-xs text-neutral-500">deposit hold</p>
+            </div>
+          )}
+          {['sale', 'both'].includes(listing.listing_type ?? 'rental') && listing.sale_price && (
+            <div className="flex-1 rounded-2xl bg-neutral-50 border border-crimson/20 px-4 py-3 text-center">
+              <p className="text-lg font-bold text-crimson">${listing.sale_price}</p>
+              <p className="text-xs text-neutral-500">buy outright</p>
+            </div>
+          )}
         </div>
 
         {/* Seller card */}
@@ -160,20 +170,32 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
       {/* Bottom CTA */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-100 px-4 py-4 max-w-lg mx-auto">
         {isOwnListing ? (
-          <div className="rounded-xl bg-neutral-100 py-3.5 text-center text-sm font-medium text-neutral-500">
+          <div className="bg-neutral-100 py-3.5 text-center text-sm font-medium text-neutral-500">
             This is your listing
           </div>
         ) : listing.is_paused ? (
-          <div className="rounded-xl bg-neutral-100 py-3.5 text-center text-sm font-medium text-neutral-500">
+          <div className="bg-neutral-100 py-3.5 text-center text-sm font-medium text-neutral-500">
             Not available right now
           </div>
         ) : (
-          <Link
-            href={`/bookings/new?listing=${listing.id}`}
-            className="block w-full rounded-xl bg-neutral-900 py-3.5 text-center text-sm font-semibold text-white hover:bg-neutral-800 transition"
-          >
-            Request to Book — ${listing.price_per_day}/day
-          </Link>
+          <div className="flex gap-3">
+            {['rental', 'both'].includes(listing.listing_type ?? 'rental') && listing.price_per_day && (
+              <Link
+                href={`/bookings/new?listing=${listing.id}`}
+                className="flex-1 bg-neutral-900 py-3.5 text-center text-[11px] font-medium uppercase tracking-widest text-white hover:bg-neutral-700 transition-colors"
+              >
+                Rent — ${listing.price_per_day}/day
+              </Link>
+            )}
+            {['sale', 'both'].includes(listing.listing_type ?? 'rental') && listing.sale_price && (
+              <Link
+                href={`/purchases/new?listing=${listing.id}`}
+                className="flex-1 bg-crimson py-3.5 text-center text-[11px] font-medium uppercase tracking-widest text-white hover:bg-neutral-900 transition-colors"
+              >
+                Buy — ${listing.sale_price}
+              </Link>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -80,7 +80,14 @@ export default async function MyListingsPage() {
                 <div className="flex-1 min-w-0 py-0.5">
                   <p className="text-xs font-medium text-neutral-900 truncate uppercase tracking-wide">{listing.title}</p>
                   <p className="text-[11px] text-neutral-400 mt-0.5">{CATEGORY_LABELS[listing.category]} · {listing.size}</p>
-                  <p className="text-sm font-semibold text-crimson mt-1">${listing.price_per_day}/day</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {listing.price_per_day && ['rental', 'both'].includes(listing.listing_type ?? 'rental') && (
+                      <p className="text-sm font-semibold text-neutral-600">${listing.price_per_day}/day</p>
+                    )}
+                    {listing.sale_price && ['sale', 'both'].includes(listing.listing_type ?? 'rental') && (
+                      <p className="text-sm font-semibold text-crimson">${listing.sale_price} buy</p>
+                    )}
+                  </div>
                   {listing.is_paused && (
                     <span className="inline-block text-[9px] uppercase tracking-widest border border-neutral-300 text-neutral-400 px-2 py-0.5 mt-1">Paused</span>
                   )}

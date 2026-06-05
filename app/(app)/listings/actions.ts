@@ -11,6 +11,11 @@ export async function createListing(formData: FormData) {
 
   const photoUrls = formData.getAll('photos') as string[]
 
+  const listingType = (formData.get('listing_type') as string) || 'rental'
+  const pricePerDayRaw = formData.get('price_per_day') as string
+  const depositRaw = formData.get('deposit_amount') as string
+  const salePriceRaw = formData.get('sale_price') as string
+
   const { data: listing, error } = await supabase
     .from('listings')
     .insert({
@@ -19,8 +24,10 @@ export async function createListing(formData: FormData) {
       description: formData.get('description') as string,
       category: formData.get('category') as string,
       size: formData.get('size') as string,
-      price_per_day: parseFloat(formData.get('price_per_day') as string),
-      deposit_amount: parseFloat(formData.get('deposit_amount') as string),
+      listing_type: listingType,
+      price_per_day: pricePerDayRaw ? parseFloat(pricePerDayRaw) : null,
+      deposit_amount: depositRaw ? parseFloat(depositRaw) : null,
+      sale_price: salePriceRaw ? parseFloat(salePriceRaw) : null,
     })
     .select()
     .single()

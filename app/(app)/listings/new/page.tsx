@@ -113,6 +113,27 @@ export default function NewListingPage() {
           </div>
         </div>
 
+        {/* Listing type */}
+        <div>
+          <label className="block text-[10px] font-medium text-neutral-500 uppercase tracking-widest mb-3">
+            Listing Type <span className="text-crimson">*</span>
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { value: 'rental', label: 'Rent Only' },
+              { value: 'sale',   label: 'Sell Only' },
+              { value: 'both',   label: 'Rent & Sell' },
+            ].map(opt => (
+              <label key={opt.value} className="relative">
+                <input type="radio" name="listing_type" value={opt.value} defaultChecked={opt.value === 'rental'} className="peer sr-only" />
+                <span className="block text-center text-[10px] font-medium uppercase tracking-wide px-2 py-2.5 border border-neutral-200 cursor-pointer transition-colors peer-checked:border-crimson peer-checked:bg-crimson peer-checked:text-white hover:border-neutral-900">
+                  {opt.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         {/* Pricing */}
         <div className="grid grid-cols-2 gap-6">
           <div>
@@ -125,7 +146,6 @@ export default function NewListingPage() {
                 id="price_per_day"
                 name="price_per_day"
                 type="number"
-                required
                 min={5}
                 max={100}
                 step={1}
@@ -138,7 +158,7 @@ export default function NewListingPage() {
 
           <div>
             <label htmlFor="deposit_amount" className="block text-[10px] font-medium text-neutral-500 uppercase tracking-widest mb-2">
-              Deposit <span className="text-crimson">*</span>
+              Deposit
             </label>
             <div className="relative">
               <span className="absolute left-0 top-1/2 -translate-y-1/2 text-sm text-neutral-400">$</span>
@@ -146,7 +166,6 @@ export default function NewListingPage() {
                 id="deposit_amount"
                 name="deposit_amount"
                 type="number"
-                required
                 min={0}
                 step={1}
                 placeholder="50"
@@ -155,6 +174,26 @@ export default function NewListingPage() {
             </div>
             <p className="text-[10px] text-neutral-400 mt-1 uppercase tracking-wide">Held at checkout</p>
           </div>
+        </div>
+
+        {/* Sale price */}
+        <div>
+          <label htmlFor="sale_price" className="block text-[10px] font-medium text-neutral-500 uppercase tracking-widest mb-2">
+            Sale Price <span className="text-neutral-300">(for sale listings)</span>
+          </label>
+          <div className="relative">
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 text-sm text-neutral-400">$</span>
+            <input
+              id="sale_price"
+              name="sale_price"
+              type="number"
+              min={1}
+              step={1}
+              placeholder="80"
+              className="w-full border-b border-neutral-300 pl-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-300 outline-none focus:border-crimson transition-colors bg-transparent"
+            />
+          </div>
+          <p className="text-[10px] text-neutral-400 mt-1 uppercase tracking-wide">Leave blank if rental only</p>
         </div>
 
         <button

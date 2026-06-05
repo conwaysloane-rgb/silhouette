@@ -11,23 +11,39 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const { data: bookings } = await supabase
-    .from('bookings')
-    .select(`
-      id, status, total_rental_price, platform_fee, pickup_date, return_date, created_at,
-      listing:listings!inner(title, seller_id),
-      renter:users!renter_id(full_name)
-    `)
-    .eq('listings.seller_id', user.id)
-    .order('created_at', { ascending: false })
+  const [{ data: bookings }, { data: sales }] = await Promise.all([
+    supabase
+      .from('bookings')
+      .select(`
+        id, status, total_rental_price, platform_fee, pickup_date, return_date, created_at,
+        listing:listings!inner(title, seller_id),
+        renter:users!renter_id(full_name)
+      `)
+      .eq('listings.seller_id', user.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('purchases')
+      .select(`
+        id, sale_price, platform_fee, status, created_at,
+        listing:listings!inner(title, seller_id),
+        buyer:users!buyer_id(full_name)
+      `)
+      .eq('listings.seller_id', user.id)
+      .order('created_at', { ascending: false }),
+  ])
 
   const completed = bookings?.filter(b => b.status === 'completed') ?? []
   const pending   = bookings?.filter(b => b.status === 'pending')   ?? []
   const active    = bookings?.filter(b => ['confirmed','active'].includes(b.status)) ?? []
 
-  const totalEarned  = completed.reduce((sum, b) => sum + (b.total_rental_price - b.platform_fee), 0)
-  const pendingValue = pending.reduce((sum, b) => sum + b.total_rental_price, 0)
-  const activeValue  = active.reduce((sum, b) => sum + (b.total_rental_price - b.platform_fee), 0)
+  const completedSales = sales?.filter(s => s.status === 'completed') ?? []
+  const pendingSales   = sales?.filter(s => s.status === 'pending')   ?? []
+
+  const rentalEarned   = completed.reduce((sum, b) => sum + (b.total_rental_price - b.platform_fee), 0)
+  const saleEarned     = completedSales.reduce((sum, s) => sum + (s.sale_price - s.platform_fee), 0)
+  const totalEarned    = rentalEarned + saleEarned
+  const pendingValue   = pending.reduce((sum, b) => sum + b.total_rental_price, 0) + pendingSales.reduce((sum, s) => sum + s.sale_price, 0)
+  const activeValue    = active.reduce((sum, b) => sum + (b.total_rental_price - b.platform_fee), 0)
 
   return (
     <div className="px-4 pt-10 pb-10">
@@ -83,6 +99,33 @@ export default async function DashboardPage() {
         </section>
       )}
 
+      {/* Pending sales */}
+      {pendingSales.length > 0 && (
+        <section className="mb-8">
+          <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-widest mb-3">Pending handoff (sales)</p>
+          <div className="space-y-2">
+            {pendingSales.map(s => {
+              const buyer = s.buyer as unknown as { full_name: string } | null
+              const listing = s.listing as unknown as { title: string } | null
+              return (
+                <Link key={s.id} href={`/purchases/${s.id}`} className="flex items-center justify-between border border-neutral-200 px-4 py-3 hover:border-neutral-900 transition-colors">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-900 uppercase tracking-wide">{listing?.title}</p>
+                    <p className="text-[11px] text-neutral-400 mt-0.5">sold to {buyer?.full_name}</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-sm font-semibold text-crimson">+${(s.sale_price - s.platform_fee).toFixed(2)}</span>
+                    <svg className="w-3.5 h-3.5 text-neutral-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Active rentals */}
       {active.length > 0 && (
         <section className="mb-8">
@@ -111,7 +154,7 @@ export default async function DashboardPage() {
       )}
 
       {/* Completed history */}
-      {completed.length > 0 && (
+      {(completed.length > 0 || completedSales.length > 0) && (
         <section>
           <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-widest mb-3">Completed</p>
           <div className="space-y-2">
@@ -128,12 +171,28 @@ export default async function DashboardPage() {
                 </Link>
               )
             })}
+            {completedSales.map(s => {
+              const buyer = s.buyer as unknown as { full_name: string } | null
+              const listing = s.listing as unknown as { title: string } | null
+              return (
+                <Link key={s.id} href={`/purchases/${s.id}`} className="flex items-center justify-between border border-neutral-100 px-4 py-3 hover:border-neutral-300 transition-colors">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-900 uppercase tracking-wide">{listing?.title}</p>
+                    <p className="text-[11px] text-neutral-400 mt-0.5">sold to {buyer?.full_name}</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-[9px] font-medium uppercase tracking-widest text-neutral-400 border border-neutral-200 px-1.5 py-0.5">Sale</span>
+                    <span className="text-sm font-semibold text-neutral-900">+${(s.sale_price - s.platform_fee).toFixed(2)}</span>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </section>
       )}
 
       {/* Empty state */}
-      {!bookings?.length && (
+      {!bookings?.length && !sales?.length && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <p className="font-serif italic text-xl text-neutral-400 mb-2">No earnings yet</p>
           <p className="text-[11px] text-neutral-400 uppercase tracking-widest mb-8">List items to start earning</p>
