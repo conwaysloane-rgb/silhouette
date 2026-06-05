@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import ListingCard from '@/components/ListingCard'
 import BrowseFilters from '@/components/BrowseFilters'
+import LogoImage from '@/components/LogoImage'
 
 export default async function BrowsePage({
   searchParams,
@@ -31,10 +32,13 @@ export default async function BrowsePage({
     <div className="px-4 pt-10">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="font-serif text-4xl tracking-[0.2em] text-neutral-900 uppercase text-center mb-1">
-          Silhouette
-        </h1>
-        <div className="h-px w-8 bg-crimson mx-auto mb-5" />
+        <div className="flex flex-col items-center mb-4">
+          <LogoImage />
+          <h1 className="font-serif text-4xl tracking-[0.2em] text-neutral-900 uppercase">
+            Silhouette
+          </h1>
+          <div className="h-px w-8 bg-crimson mt-2" />
+        </div>
         <Suspense>
           <BrowseFilters />
         </Suspense>
